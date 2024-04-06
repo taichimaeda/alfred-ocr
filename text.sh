@@ -8,6 +8,18 @@ if [ ! -f "$path.png" ]; then
     exit 1
 fi
 
-python3 "$(dirname "$0")/text.py" "$path.png"
+read -r -d '' script << EOF
+import sys
+
+from ocrmac import ocrmac
+
+path = sys.argv[1]
+annotations = ocrmac.OCR(path).recognize()
+
+for annotation in annotations:
+    print(annotation[0])
+EOF
+
+python3 -c "$script" "$path.png"
 
 /bin/rm -f "$path".*
